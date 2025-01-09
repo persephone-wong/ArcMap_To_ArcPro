@@ -1,6 +1,6 @@
 import arcpy
 
-CurrentProject = arcpy.mp.ArcGISProject('current')
+CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
 Maps = CurrentProject.listMaps("Data Themes")[0]
 Layers = Maps.listlayers()
 
