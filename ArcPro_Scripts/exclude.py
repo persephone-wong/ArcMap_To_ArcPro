@@ -10,21 +10,25 @@ for layer in Layers:
         arcpy.AddMessage("## There are charts in table of content ##")
         arcpy.AddMessage("##########################################")
     elif layer.isGroupLayer:
-        if layer.isFeatureLayer:
-            if layer.supports("WORKSPACEPATH"):
-                WorkspacePath = layer.workspacePath
-                DescribeWorkspacePath = arcpy.Describe(WorkspacePath)
-                WorkspacePathType = DescribeWorkspacePath.workspaceFactoryProgID
-            DescribeLayer = arcpy.Describe(layer)
-            SelectedFids = DescribeLayer.FIDSet
-            if len(SelectedFids) > 0:
-                QueryList = SelectedFids.replace(';', ',')
-                OidFieldName = arcpy.Describe(layer).OIDFieldName
-                if WorkspacePath == "esriDataSourcesGDB.FileGDBWorkspaceFactory.1":
-                    layer.definitionQuery = '{0} in ({1})'.format(arcpy.AddFieldDelimiters(layer, OidFieldName, QueryList))
-                elif WorkspacePath == "esriDataSourcesGDB.AccessWorkspaceFactory.1":
-                    layer.definitionQuery =  '[{0}] in ({1})'. format(arcpy.AddFieldDelimiters(layer, OidFieldName), QueryList).replace("\"","",2)
-                elif WorkspacePath == "esriDataSourcesGDB.SdeWorkspaceFactory.1": #Identifies SDE database (MWQM does not use them so this code might not work properly if actually applied)
-                    layer.definitionQuery =  '{0} in ({1})'. format(arcpy.AddFieldDelimiters(layer, OidFieldName), QueryList).replace("\"","",2)      
-                else: #Identifies other types of data file (Shapefiles)
-                    layer.definitionQuery =  '{0} in ({1})'. format(arcpy.AddFieldDelimiters(layer, OidFieldName), QueryList)
+        for subLayer in layer.listLayers():
+            if subLayer.isFeatureLayer:
+                if subLayer.supports("WORKSPACEPATH"):
+                    WorkspacePath = subLayer.workspacePath
+                    DescribeWorkspacePath = arcpy.Describe(WorkspacePath)
+                    WorkspacePathType = DescribeWorkspacePath.workspaceFactoryProgID
+                else:
+                    continue
+                DescribeLayer = arcpy.Describe(subLayer)
+                SelectedFids = DescribeLayer.FIDSet
+                
+                if len(SelectedFids) > 0:
+                    QueryList = SelectedFids.replace(';', ',')
+                    OidFieldName = arcpy.Describe(subLayer).OIDFieldName
+                    if WorkspacePath == "esriDataSourcesGDB.FileGDBWorkspaceFactory.1":
+                        subLayer.definitionQuery = '{0} in ({1})'.format(arcpy.AddFieldDelimiters(subLayer, OidFieldName, QueryList))
+                    elif WorkspacePath == "esriDataSourcesGDB.AccessWorkspaceFactory.1":
+                        subLayer.definitionQuery =  '[{0}] in ({1})'. format(arcpy.AddFieldDelimiters(subLayer, OidFieldName), QueryList).replace("\"","",2)
+                    elif WorkspacePath == "esriDataSourcesGDB.SdeWorkspaceFactory.1": #Identifies SDE database (MWQM does not use them so this code might not work properly if actually applied)
+                        subLayer.definitionQuery =  '{0} in ({1})'. format(arcpy.AddFieldDelimiters(subLayer, OidFieldName), QueryList).replace("\"","",2)      
+                    else: #Identifies other types of data file (Shapefiles)
+                        subLayer.definitionQuery =  '{0} in ({1})'. format(arcpy.AddFieldDelimiters(subLayer, OidFieldName), QueryList)

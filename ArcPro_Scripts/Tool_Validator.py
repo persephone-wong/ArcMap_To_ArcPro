@@ -6,13 +6,18 @@ class ToolValidator(object):
         self.params = arcpy.GetParameterInfo()
 
     def initializeParameters(self):
-        env.workspace = "Q:\GW\EC1210WQAEH_QESEA\CSSP_PYR\SDMRS2\Boundaries.gdb\BDY_MWQM_GA_Sectors_Poly"
+        env.workspace = 'Q:\GW\EC1210WQAEH_QESEA\CSSP_PYR\SDMRS2\Boundaries.gdb'
         Values = set()
-        Cursor = arcpy.da.SearchCursor(env.workspace,'','', "SECTOR","SECTOR A")
-        for row in Cursor:
-            Values.add(row.getValue("SECTOR"))
-        TargetList = sorted(Values)
-        self.params[0].filter.list = sorted(Values)
+        try:
+            with arcpy.da.SearchCursor("BDY_MWQM_GA_Sectors_Poly", ["SECTOR"]) as Cursor:
+                for row in Cursor:
+                    Values.add(row[0])  # Access the value directly from the tuple
+                
+            # Sort and set the filter list for the parameter
+            TargetList = sorted(Values)
+            self.params[0].filter.list = TargetList  # Set the list for the filter parameter
+        except Exception as e:
+            arcpy.AddError(f"Error while retrieving values from the feature class: {str(e)}")
         return
     
     def updateParameters(self):

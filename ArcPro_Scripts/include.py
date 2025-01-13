@@ -15,5 +15,10 @@ for layer in Layers:
              selectedFids = desc.FIDSet
              if len(selectedFids) > 0:
                 queryList = selectedFids.replace(';', ',')
-                newName = arcpy.AddFieldDelimiters(layer, "FID")
-                layer.definitionQuery =  "".format(newName, queryList)
+                OidFieldName = arcpy.Describe(layer).OIDFieldName
+                newName = arcpy.AddFieldDelimiters(layer, OidFieldName)
+                layer.definitionQuery = "{} IN ({})".format(newName, queryList)
+
+arcpy.AddMessage("##########################################")
+arcpy.AddMessage("### Definition Queries Applied Successfully ###")
+arcpy.AddMessage("##########################")

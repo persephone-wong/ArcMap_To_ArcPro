@@ -4,6 +4,7 @@ CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
 Maps = CurrentProject.listMaps("Data Themes")[0]
 
 Layer = arcpy.GetParameter(0)
+WorkspacePathType = None
 
 for layer in arcpy.mp.ListLayers(CurrentProject):
     if layer.name == Layer.name:
@@ -11,8 +12,12 @@ for layer in arcpy.mp.ListLayers(CurrentProject):
                             WorkspacePath = layer.workspacePath
                             DescribeWorkspacePath = arcpy.Describe(WorkspacePath)
                             WorkspacePathType = DescribeWorkspacePath.workspaceFactoryProgID
-        if WorkspacePathType == "esriDataSourcesGDB.FileGDBWorkspaceFactory.1" or WorkspacePathType == "esriDataSourcesGDB.AccessWorkspaceFactory.1" or WorkspacePathType == "esriDataSourcesGDB.AccessWorkspaceFactory.1" or WorkspacePathType == "esriDataSourcesGDB.SdeWorkspaceFactory.1":
-            layer.definitionQuery = ''
+        if WorkspacePathType in [
+            "esriDataSourcesGDB.FileGDBWorkspaceFactory.1", 
+            "esriDataSourcesGDB.AccessWorkspaceFactory.1", 
+            "esriDataSourcesGDB.SdeWorkspaceFactory.1"
+        ]:            
+                layer.definitionQuery = ''
         else:
             layer.definitionQuery = ''
                
