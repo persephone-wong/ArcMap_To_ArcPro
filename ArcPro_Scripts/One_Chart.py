@@ -1,10 +1,11 @@
 import arcpy, os
 
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
-Layers = Maps.listlayers("CHS Raster Chart")[0]
-TargetGroupLayer = Maps.listlayers("Charts")[0]
-Legend = Maps.listElements("LEGEND_ELEMENT", "Legend")[0]
+Maps = CurrentProject.listMaps()[0]
+MapLayouts = CurrentProject.listLayouts()[0]
+Layers = Maps.listLayers("CHS Raster Chart")[0]
+TargetGroupLayer = Maps.listLayers("Charts")[0]
+Legend = MapLayouts.listElements("LEGEND_ELEMENT", "Legend")[0]
 Extent = Maps.extent
 PolygonPoints = [Extent.lowerLeft, Extent.lowerRight, Extent.upperRight, Extent.upperLeft]
 PolygonFeature = arcpy.Polygon(arcpy.Array(PolygonPoints))

@@ -1,10 +1,9 @@
 import arcpy
 
-CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
-Layers = Maps.listlayers()
+CurrentProject = arcpy.mp.ArcGISProject('current')
+Maps = CurrentProject.listMaps()[0]
 
-for layer in Layers:
+for layer in Maps.listLayers():
     if layer.isRasterLayer:
         arcpy.AddMessage("##########################################")
         arcpy.AddMessage("## There are charts in table of content ##")

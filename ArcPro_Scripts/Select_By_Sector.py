@@ -1,7 +1,7 @@
 import arcpy
 
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
+Maps = CurrentProject.listMaps()[0]
 Filters = arcpy.GetParameter(0)
 if Filters:
     queryList = "','".join(Filters)

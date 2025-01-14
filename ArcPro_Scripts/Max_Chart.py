@@ -1,7 +1,7 @@
 import arcpy, os
 
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
+Maps = CurrentProject.listMaps()[0]
 Layers = Maps.listlayers("CHS Raster Chart")[0]
 TargetGroupLayer = Maps.listlayers("Charts")[0]
 try: 

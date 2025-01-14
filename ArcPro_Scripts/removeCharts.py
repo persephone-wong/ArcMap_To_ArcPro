@@ -2,7 +2,7 @@
 import arcpy
 
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
+Maps = CurrentProject.listMaps()[0]
 Layers = Maps.listlayers()
 for layer in Layers:
     if layer.supports("CHARTS"):

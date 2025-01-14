@@ -2,9 +2,9 @@ import arcpy
 from time import sleep
 
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
-Maps = CurrentProject.listMaps("Data Themes")[0]
+Maps = CurrentProject.listMaps()[0]
 
-for layer in arcpy.mp.ListLayers(CurrentProject):
+for layer in Maps.listLayers(CurrentProject):
     if layer.name == "Approved Areas":
         if layer.supports("WORKSPACEPATH"):
             WorkspacePath = layer.workspacePath
