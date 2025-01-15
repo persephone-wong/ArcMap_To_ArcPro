@@ -7,7 +7,7 @@ arcpy.AddMessage("{0}".format(Maps))
 Layers = Maps.listlayers("CHS Raster Chart")[0]
 TargetGroupLayer = Maps.listlayers("Charts")[0]
 
-Extent = Maps.extent
+Extent = PROE
 PolygonPoints = [Extent.lowerLeft, Extent.lowerRight, Extent.upperRight, Extent.upperLeft]
 PolygonFeature = arcpy.Polygon(arcpy.Array(PolygonPoints))
 

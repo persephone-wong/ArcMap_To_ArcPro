@@ -1,51 +1,45 @@
 import arcpy, os
-
+#Get current ArcGIS project and map
 CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
 Maps = CurrentProject.listMaps()[0]
-Layers = Maps.listlayers("CHS Raster Chart")[0]
-TargetGroupLayer = Maps.listlayers("Charts")[0]
-try: 
-    Legend = (CurrentProject.listLayouts*('Layout')[0]).listElements('LEGEND_ELEMENT')[0]
-except:
+Layout = CurrentProject.listLayouts()[0]
+
+arcpy.AddMessage("{0}".format(Maps))
+
+Layers = Maps.listLayers("CHS Raster Chart")[0]
+TargetGroupLayer = Maps.listLayers("Charts")[0]
+try:
+    legend = [element for element in Layout.listElements("LEGEND_ELEMENT") if element.name == "Legend"][0]
+except IndexError:
     arcpy.AddMessage("No Legend in Layout View")
 
-
-Extent = Maps.extent
+Extent = CurrentProject.activeMap.defaultView.camera.getExtent()
 PolygonPoints = [Extent.lowerLeft, Extent.lowerRight, Extent.upperRight, Extent.upperLeft]
 PolygonFeature = arcpy.Polygon(arcpy.Array(PolygonPoints))
 
-
 arcpy.management.SelectLayerByLocation(Layers, "CONTAINS", PolygonFeature, "", "NEW_SELECTION")
-FeatureList = []
-with arcpy.da.SearchCursor(Layers, ["CHARTSCALE", "CHARTNO"]) as Cursor:
-    for row in Cursor:
-        FeatureList.append(row[0])  # row[0] is CHARTSCALE
 
-MaximumScale = min(FeatureList)
-
+featureList = []
+for row in arcpy.da.SearchCursor(Layers, ["CHARTSCALE"]):
+    featureList.append(row[0])
+MX = min(featureList)
 ChartFolder = os.listdir("Q:/GW/EC1210WQAEH_QESEA/CSSP_PYR/SDMRS2/Charts/")
+Chart = None
 
 with arcpy.da.SearchCursor(Layers, ["CHARTSCALE", "CHARTNO"]) as Cursor:
     for row in Cursor:
-        if row[0] == MaximumScale:
-            # Construct the full path to the chart
-            Chart = os.path.join("Q:/GW/EC1210WQAEH_QESEA/CSSP_PYR/SDMRS2/Charts/", row[1] + ".KAP")
-            # Add the chart layer to the group
-            new_chart_layer = arcpy.mp.LayerFile(Chart)
-            Maps.addLayer(TargetGroupLayer, new_chart_layer)
+        if row[0] == MX:
+            Chart_file = row[1] + ".KAP"
+            if Chart_file in ChartFolder:
+                Chart = os.path.join("Q:/GW/EC1210WQAEH_QESEA/CSSP_PYR/SDMRS2/Charts/", Chart_file)
+                break
+
+if Chart:
+    arcpy.MakeRasterLayer_management(Chart, "raster_layer")
+    addLayer = arcpy.mp.LayerFile("raster_layer.lyrx")
+    Maps.addLayerToGroup(TargetGroupLayer, addLayer, "TOP")
+arcpy.management.SelectLayerByAttribute(Layers,"CLEAR_SELECTION")
 
 SymbologyLayer = "Q:/GW/EC1210WQAEH_QESEA/CSSP_PYR/SDMRS2/Charts/Chart_Symbology.lyr"
-"""
-try:
-   legend.autoAdd = False
-except:
-    arcpy.AddMessage("No Legend in Layout View")
-    Not Ported Over.
-    """
-Maps.mp.addLayerToGroup(TargetGroupLayer, Chart, "TOP")
-arcpy.management.ApplySymbologyFromLayer(Chart, SymbologyLayer)
-arcpy.management.SelectLayerByAttribute_management(Layers,"CLEAR_SELECTION")
-
 for layer in TargetGroupLayer.listLayers():
     arcpy.management.ApplySymbologyFromLayer(layer, SymbologyLayer)
-

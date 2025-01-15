@@ -66,10 +66,3 @@ for lyr in targetGroupLayer:
    arcpy.ApplySymbologyFromLayer_management(lyr, symbologyLayer)
 arcpy.RefreshActiveView()
 arcpy.RefreshTOC()
-
-                                                            
-
-
-
-
-
