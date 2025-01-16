@@ -35,8 +35,8 @@ with arcpy.da.SearchCursor(Layers, ["CHARTSCALE", "CHARTNO"]) as Cursor:
                 break
 
 if Chart:
-    arcpy.MakeRasterLayer_management(Chart, "raster_layer")
-    addLayer = arcpy.mp.LayerFile("raster_layer.lyrx")
+    result = arcpy.MakeRasterLayer_management(Chart, "raster_layer")
+    addLayer = result.getOutput(0)
     Maps.addLayerToGroup(TargetGroupLayer, addLayer, "TOP")
 arcpy.management.SelectLayerByAttribute(Layers,"CLEAR_SELECTION")
 
