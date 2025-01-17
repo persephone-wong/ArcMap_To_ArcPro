@@ -16,8 +16,7 @@ for layer in Maps.listLayers():
                 queryList = selectedFids.replace(';', ',')
                 OidFieldName = arcpy.Describe(layer).OIDFieldName
                 newName = arcpy.AddFieldDelimiters(layer, OidFieldName)
-                layer.definitionQuery = "{} IN ({})".format(newName, queryList)
-
+                layer.definitionQuery = "".format(newName, queryList)
 arcpy.AddMessage("##########################################")
 arcpy.AddMessage("### Definition Queries Applied Successfully ###")
 arcpy.AddMessage("##########################")
