@@ -10,6 +10,9 @@ arcpy.AddMessage("{0}".format(Maps))
 Layers = Maps.listLayers("CHS Raster Chart")[0]
 TargetGroupLayer = Maps.listLayers("Charts")[0]
 
+for layers in TargetGroupLayer.listLayers():
+    Maps.removeLayer(layers)
+
 try:
     legend = [element for element in Layout.listElements("LEGEND_ELEMENT") if element.name == "Legend"][0]
 except IndexError:
@@ -43,6 +46,3 @@ arcpy.management.SelectLayerByAttribute(Layers, "CLEAR_SELECTION")
 SymbologyLayer = "Q:/GW/EC1210WQAEH_QESEA/CSSP_PYR/SDMRS2/Charts/Chart_Symbology.lyr"
 for layer in TargetGroupLayer.listLayers():
     arcpy.management.ApplySymbologyFromLayer(layer, SymbologyLayer)
-
-arcpy.RefreshActiveView()
-arcpy.RefreshTOC()

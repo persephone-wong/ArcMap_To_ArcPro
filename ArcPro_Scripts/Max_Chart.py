@@ -13,6 +13,10 @@ try:
 except IndexError:
     arcpy.AddMessage("No Legend in Layout View")
 
+for layers in TargetGroupLayer.listLayers():
+    Maps.removeLayer(layers)
+
+
 Extent = CurrentProject.activeMap.defaultView.camera.getExtent()
 PolygonPoints = [Extent.lowerLeft, Extent.lowerRight, Extent.upperRight, Extent.upperLeft]
 PolygonFeature = arcpy.Polygon(arcpy.Array(PolygonPoints))
