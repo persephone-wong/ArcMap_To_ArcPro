@@ -5,36 +5,27 @@ CurrentProject = arcpy.mp.ArcGISProject('CURRENT')
 Maps = CurrentProject.listMaps()[0]
 
 # This loop will go through all layers
-for lyr in Maps.listLayers():
-    if lyr.isRasterLayer:
-        arcpy.AddMessage("###############################################")
-        arcpy.AddMessage("## There are charts in the Table of Contents ##")
-        arcpy.AddMessage("###############################################")
-    elif not lyr.isGroupLayer:
-        # Tool works only with feature layers.
-        if lyr.isFeatureLayer:
-            arcpy.AddMessage(f"Processing layer: {lyr.name}")
-            # Check if the layer supports DEFINITIONQUERY
-            if lyr.supports("DEFINITIONQUERY"):
-                # Describe the feature layer to access the selected set
-                desc = arcpy.Describe(lyr)
-                # FIDSet will contain the selected features
-                selectedFids = desc.FIDSet
-                arcpy.AddMessage(f"Selected FIDs: {selectedFids}")
-                # If there are selectedFids (a selection set), write them to a new feature class in the current workspace.
-                if selectedFids:
-                    queryList = selectedFids.replace(';', ',')
-                    # This command finds the ID field name
-                    oidFieldName = arcpy.Describe(lyr).oidFieldName
-                    arcpy.AddMessage(f"OID Field Name: {oidFieldName}")
-                    # Apply the definition query to show only the selected features
-                    lyr.definitionQuery = '{0} IN ({1})'.format(arcpy.AddFieldDelimiters(lyr, oidFieldName), queryList)
-                    arcpy.AddMessage(f"Definition Query set to: {lyr.definitionQuery}")
+for layer in Maps.listLayers():
+    try:
+        if layer.isRasterLayer:
+            arcpy.AddMessage("###############################################")
+            arcpy.AddMessage("## There are charts in the Table of Contents ##")
+            arcpy.AddMessage("###############################################")
+        elif layer.isGroupLayer == False:
+            if layer.isFeatureLayer:
+                if layer.supports("name"):
+                    arcpy.AddMessage(f"Processing layer: {layer.name}")
+                    if layer.supports("DEFINITIONQUERY"):
+                        arcpy.management.SelectLayerByAttribute(layer, "SUBSET_SELECTION", "OBJECTID IS NOT NULL")
+                        desc = arcpy.Describe(layer)
+                        selectedFids = desc.FIDSet
+                        if selectedFids:
+                            queryList = selectedFids.replace(';', ',')
+                            oidFieldName = arcpy.Describe(layer).oidFieldName
+                            layer.definitionQuery = '{0} IN ({1})'.format(arcpy.AddFieldDelimiters(layer, oidFieldName), queryList)
+                    else:
+                        arcpy.AddMessage(f"Layer {layer.name} does not support DEFINITIONQUERY")
             else:
-                arcpy.AddMessage(f"Layer {lyr.name} does not support DEFINITIONQUERY")
-        else:
-            arcpy.AddMessage(f"Layer {lyr.name} is not a feature layer")
-
-# Refresh the active view
-arcpy.RefreshActiveView()
-arcpy.AddMessage("Active view refreshed")
+                arcpy.AddMessage(f"Layer {layer.name} is not a feature layer")
+    except AttributeError as e:
+        arcpy.AddMessage(f"Layer does not support the attribute: {e}")
